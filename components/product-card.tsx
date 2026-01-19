@@ -33,11 +33,11 @@ export function ProductCard({ product, className }: ProductCardProps) {
   return (
     <Card
       className={cn(
-        "group relative overflow-hidden border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-lg",
+        "group relative overflow-hidden border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-lg p-0 gap-0",
         className
       )}
     >
-      <Link href={`/products/${product.id}`} className="relative aspect-square overflow-hidden bg-muted block">
+      <Link href={`/products/${product.id}`} className="relative aspect-square overflow-hidden bg-muted block rounded-t-xl">
         <Image
           src={product.image || "/placeholder.svg"}
           alt={product.name}

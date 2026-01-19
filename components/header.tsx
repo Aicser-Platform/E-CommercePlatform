@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingCart, Menu, X, Search, User, Package } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ShoppingCart, Menu, X, Search, User, Package, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+
 import {
   Sheet,
   SheetContent,
@@ -12,7 +14,7 @@ import {
   SheetClose,
 } from "@/components/ui/sheet";
 import { useCartStore } from "@/lib/cart-store";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const navigation = [
   { name: "Home", href: "/" },
@@ -23,9 +25,30 @@ const navigation = [
 ];
 
 export function Header() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
   const openCart = useCartStore((state) => state.openCart);
   const totalItems = useCartStore((state) => state.getTotalItems());
+
+  // Update search query when URL params change
+  useEffect(() => {
+    setSearchQuery(searchParams.get("search") || "");
+  }, [searchParams]);
+
+  // Real-time search handler with debouncing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchQuery.trim()) {
+        router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+      } else if (searchParams.get("search")) {
+        router.push("/products");
+      }
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, router, searchParams]);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -60,6 +83,8 @@ export function Header() {
               <Input
                 type="search"
                 placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 w-full bg-muted/50 border-transparent focus:border-primary"
               />
             </div>
@@ -78,6 +103,18 @@ export function Header() {
               <Search className="h-5 w-5" />
             </Button>
 
+            {/* Back to AICSER */}
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="hidden sm:flex items-center gap-1.5 bg-transparent text-muted-foreground hover:text-white hover:border-primary" 
+              asChild
+            >
+              <a href="https://aicser.com" target="_blank" rel="noopener noreferrer">
+                <ExternalLink className="h-3.5 w-3.5" />
+                <span>aicser.com</span>
+              </a>
+            </Button>
             {/* Orders */}
             <Button variant="ghost" size="icon" className="hidden sm:flex" aria-label="Orders" asChild>
               <Link href="/orders">
@@ -154,6 +191,8 @@ export function Header() {
               <Input
                 type="search"
                 placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 w-full bg-muted/50"
                 autoFocus
               />

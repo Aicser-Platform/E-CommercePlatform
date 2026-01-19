@@ -390,6 +390,47 @@ export function getProductsByCategory(category: string): Product[] {
   return products.filter((p) => p.category === category);
 }
 
+export function searchProducts(query: string): Product[] {  
+  const lowerQuery = query.toLowerCase();
+  return products.filter(
+    (p) =>
+      p.name.toLowerCase().includes(lowerQuery) ||
+      p.description.toLowerCase().includes(lowerQuery) ||
+      (p.longDescription && p.longDescription.toLowerCase().includes(lowerQuery))
+  );
+}
+
+export function filterByPriceRange(products: Product[], minPrice: number, maxPrice: number): Product[] {
+  return products.filter((p) => p.price >= minPrice && p.price <= maxPrice);
+}
+
+export type SortOption = "featured" | "price-low" | "price-high" | "rating" | "newest";
+
+export function sortProducts(products: Product[], sortBy: SortOption): Product[] {
+  const sorted = [...products];
+  
+  switch (sortBy) {
+    case "price-low":
+      return sorted.sort((a, b) => a.price - b.price);
+    case "price-high":
+      return sorted.sort((a, b) => b.price - a.price);
+    case "rating":
+      return sorted.sort((a, b) => b.rating - a.rating);
+    case "newest":
+      return sorted.filter((p) => p.badge === "new").concat(sorted.filter((p) => p.badge !== "new"));
+    case "featured":
+    default:
+      // Featured: bestsellers first, then new, then rest
+      return sorted.sort((a, b) => {
+        if (a.badge === "bestseller" && b.badge !== "bestseller") return -1;
+        if (b.badge === "bestseller" && a.badge !== "bestseller") return 1;
+        if (a.badge === "new" && b.badge !== "new") return -1;
+        if (b.badge === "new" && a.badge !== "new") return 1;
+        return 0;
+      });
+  }
+}
+
 export function getFeaturedProducts(): Product[] {
   return products.filter((p) => p.badge === "bestseller" || p.badge === "new").slice(0, 6);
 }

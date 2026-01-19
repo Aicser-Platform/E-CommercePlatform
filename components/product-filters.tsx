@@ -20,7 +20,10 @@ export function ProductFilters({ className }: ProductFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentCategory = searchParams.get("category") || "All";
-  const [priceRange, setPriceRange] = useState([0, 500]);
+  const currentSort = searchParams.get("sort") || "featured";
+  const minPrice = parseInt(searchParams.get("minPrice") || "0");
+  const maxPrice = parseInt(searchParams.get("maxPrice") || "500");
+  const [priceRange, setPriceRange] = useState([minPrice, maxPrice]);
 
   const handleCategoryChange = (category: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -32,9 +35,42 @@ export function ProductFilters({ className }: ProductFiltersProps) {
     router.push(`/products?${params.toString()}`);
   };
 
+  const handleSortChange = (sort: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (sort === "featured") {
+      params.delete("sort");
+    } else {
+      params.set("sort", sort);
+    }
+    router.push(`/products?${params.toString()}`);
+  };
+
+  const handlePriceRangeChange = (values: number[]) => {
+    setPriceRange(values);
+  };
+
+  const applyPriceFilter = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (priceRange[0] === 0 && priceRange[1] === 500) {
+      params.delete("minPrice");
+      params.delete("maxPrice");
+    } else {
+      params.set("minPrice", priceRange[0].toString());
+      params.set("maxPrice", priceRange[1].toString());
+    }
+    router.push(`/products?${params.toString()}`);
+  };
+
   const clearFilters = () => {
-    router.push("/products");
+    const params = new URLSearchParams(searchParams.toString());
+    const search = params.get("search");
     setPriceRange([0, 500]);
+    // Keep search query if it exists
+    if (search) {
+      router.push(`/products?search=${search}`);
+    } else {
+      router.push("/products");
+    }
   };
 
   const FilterContent = () => (
@@ -65,15 +101,23 @@ export function ProductFilters({ className }: ProductFiltersProps) {
         <div className="px-2">
           <Slider
             value={priceRange}
-            onValueChange={setPriceRange}
+            onValueChange={handlePriceRangeChange}
             max={500}
             step={10}
             className="mb-4"
           />
-          <div className="flex justify-between text-sm text-muted-foreground">
+          <div className="flex justify-between text-sm text-muted-foreground mb-3">
             <span>${priceRange[0]}</span>
             <span>${priceRange[1]}+</span>
           </div>
+          <Button
+            variant="secondary"
+            size="sm"
+            className="w-full"
+            onClick={applyPriceFilter}
+          >
+            Apply Price Filter
+          </Button>
         </div>
       </div>
 
@@ -82,29 +126,35 @@ export function ProductFilters({ className }: ProductFiltersProps) {
       {/* Sort By */}
       <div>
         <h3 className="font-semibold text-foreground mb-3">Sort By</h3>
-        <RadioGroup defaultValue="featured">
+        <RadioGroup value={currentSort} onValueChange={handleSortChange}>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="featured" id="featured" />
-            <Label htmlFor="featured" className="text-sm cursor-pointer text-muted-foreground">
+            <Label htmlFor="featured" className="text-sm cursor-pointer text-muted-foreground hover:text-foreground transition-colors">
               Featured
             </Label>
           </div>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="price-low" id="price-low" />
-            <Label htmlFor="price-low" className="text-sm cursor-pointer text-muted-foreground">
+            <Label htmlFor="price-low" className="text-sm cursor-pointer text-muted-foreground hover:text-foreground transition-colors">
               Price: Low to High
             </Label>
           </div>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="price-high" id="price-high" />
-            <Label htmlFor="price-high" className="text-sm cursor-pointer text-muted-foreground">
+            <Label htmlFor="price-high" className="text-sm cursor-pointer text-muted-foreground hover:text-foreground transition-colors">
               Price: High to Low
             </Label>
           </div>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="rating" id="rating" />
-            <Label htmlFor="rating" className="text-sm cursor-pointer text-muted-foreground">
+            <Label htmlFor="rating" className="text-sm cursor-pointer text-muted-foreground hover:text-foreground transition-colors">
               Highest Rated
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="newest" id="newest" />
+            <Label htmlFor="newest" className="text-sm cursor-pointer text-muted-foreground hover:text-foreground transition-colors">
+              Newest First
             </Label>
           </div>
         </RadioGroup>

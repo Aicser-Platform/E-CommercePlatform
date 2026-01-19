@@ -31,11 +31,12 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Brand */}
           <div className="lg:col-span-2">
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                <span className="text-lg font-bold text-primary-foreground">S</span>
-              </div>
-              <span className="text-xl font-bold">ShopEase</span>
+            <Link href="/" className="flex items-center gap-2">
+            <div className="flex h-15 w-15 items-center justify-center rounded-lg">
+              {/* <span className="text-lg font-bold text-primary-foreground">S</span> */}
+            <img src="/Aicser_Store_Logo.png" className="" alt="Aicser Store Logo" />
+            </div>
+            <span className="text-xl font-bold text-primary">AicserStore</span>
             </Link>
             <p className="text-background/70 mb-6 max-w-sm">
               Your one-stop destination for quality products. Discover amazing deals
@@ -112,7 +113,7 @@ export function Footer() {
 
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-background/60">
-            &copy; {new Date().getFullYear()} ShopEase. All rights reserved.
+            &copy; {new Date().getFullYear()} AicserStore. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
             <Link href="#" className="text-sm text-background/60 hover:text-primary transition-colors">

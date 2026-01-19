@@ -4,14 +4,33 @@ import { useSearchParams } from "next/navigation";
 import { StoreLayout } from "@/components/store-layout";
 import { ProductCard } from "@/components/product-card";
 import { ProductFilters } from "@/components/product-filters";
-import { products, getProductsByCategory } from "@/lib/products";
+import { products, getProductsByCategory, searchProducts, filterByPriceRange, sortProducts, type SortOption} from "@/lib/products";
 import { Suspense } from "react";
 import { ProductsPageSkeleton } from "@/components/product-skeleton";
 
 function ProductsContent() {
   const searchParams = useSearchParams();
   const category = searchParams.get("category") || "All";
-  const filteredProducts = getProductsByCategory(category);
+  const searchQuery = searchParams.get("search") || "";
+  const sortBy = (searchParams.get("sort") || "featured") as SortOption;
+  const minPrice = parseInt(searchParams.get("minPrice") || "0");
+  const maxPrice = parseInt(searchParams.get("maxPrice") || "500");
+
+  // Get filtered products based on search or category
+  let filteredProducts: typeof products = [];
+  if (searchQuery) {
+    filteredProducts = searchProducts(searchQuery);
+  } else {
+    filteredProducts = getProductsByCategory(category);
+  }
+
+  // Apply price range filter
+  if (minPrice > 0 || maxPrice < 500) {
+    filteredProducts = filterByPriceRange(filteredProducts, minPrice, maxPrice);
+  }
+
+  // Apply sorting
+  filteredProducts = sortProducts(filteredProducts, sortBy);
 
   return (
     <StoreLayout>
@@ -19,7 +38,11 @@ function ProductsContent() {
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-foreground">
-            {category === "All" ? "All Products" : category}
+            {searchQuery 
+              ? `Search Results for "${searchQuery}"` 
+              : category === "All" 
+                ? "All Products" 
+                : category}
           </h1>
           <p className="mt-2 text-muted-foreground">
             Showing {filteredProducts.length} of {products.length} products

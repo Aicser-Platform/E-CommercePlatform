@@ -2,6 +2,7 @@ import React from "react"
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { ScrollToTopHandler } from '@/components/scroll-to-top-handler'
 import './globals.css'
 
 const geist = Geist({ 
@@ -43,6 +44,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geist.variable} ${geistMono.variable} font-sans antialiased`}>
+        <ScrollToTopHandler />
         {children}
         <Analytics />
       </body>
